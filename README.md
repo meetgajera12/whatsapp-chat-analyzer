@@ -1,0 +1,2 @@
+## WhatsApp Chat Analyzer 📊
+An end-to-end WhatsApp chat analysis tool built with Python that transforms raw chat exports into meaningful insights through statistical analysis and data visualizations.
