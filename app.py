@@ -25,7 +25,7 @@ if uploaded_file is not None:
 
         num_messages, words, num_media_msg, num_links = helper.fetch_stat(selected_user,df)
         
-        st.title("TOP STATISTICS for", selected_user)
+        st.title(f"TOP STATISTICS for {selected_user}")
         
         col1, col2, col3, col4 = st.columns(4)
 
