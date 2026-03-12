@@ -5,7 +5,13 @@ import emoji
 import seaborn as sns
 import preprocessor, helper
 import matplotlib.pyplot as plt
-plt.rcParams['font.family'] = 'Segoe UI Emoji'
+import plotly.express as px
+
+st.set_page_config(
+    page_title="Chat Analysis",
+    page_icon="💬",
+    layout="wide"
+)
 
 st.sidebar.title('Whatsapp Chat Analyzer')
 
@@ -54,18 +60,22 @@ if uploaded_file is not None:
         #monthly_timeline
         st.title("Monthly Timeline")
         timeline = helper.monthly_timeline(selected_user,df)
-        fig, ax = plt.subplots()
-        ax.plot(timeline['time'], timeline['messages'], color='red')
-        plt.xticks(rotation='vertical')
-        st.pyplot(fig)
+        # fig, ax = plt.subplots()
+        # ax.plot(timeline['time'], timeline['messages'], color='red')
+        # plt.xticks(rotation='vertical')
+        # st.pyplot(fig)
+        figg = px.line(timeline, x='time', y='messages')
+        st.plotly_chart(figg) 
 
         #daily_timeline
         st.title("Daily Timeline")
         d_timeline = helper.daily_timline(selected_user, df)
-        fig, ax = plt.subplots()
-        ax.plot(d_timeline['only_date'], d_timeline['messages'], color='green')
-        plt.xticks(rotation='vertical')
-        st.pyplot(fig)
+        # fig, ax = plt.subplots()
+        # ax.plot(d_timeline['only_date'], d_timeline['messages'], color='green')
+        # plt.xticks(rotation='vertical')
+        # st.pyplot(fig)
+        fig_ = px.line(d_timeline, x='only_date', y='messages')
+        st.plotly_chart(fig_)
 
         #activity map
         st.title("Activity Map")
@@ -119,23 +129,27 @@ if uploaded_file is not None:
         st.title('WordCloud')
         fig, ax = plt.subplots()
         st.text("Disclaimer: Some Gujarati or Hindi words may be not visible in this plot")
+        ax.axis("off")
         ax.imshow(df_wc)
         st.pyplot(fig)
         
 
         #most common words
+        st.title("most common words")
         most_common_df = helper.most_common_words(selected_user, df)
         st.dataframe(most_common_df)
 
         fig, ax = plt.subplots()
-        st.title("most common words")
+        st.title("most common words - Bar Plot")
         st.text("Disclaimer: Some Gujarati or Hindi words may be not visible in this plot")
-        font_path = "NotoSansGujarati-VariableFont_wdth,wght.ttf"
-        prop = fm.FontProperties(fname=font_path)
-        ax.barh(most_common_df[0], most_common_df[1], color=['#8c564b'])
-        plt.xticks(rotation='vertical')
-        plt.yticks(fontproperties=prop)
-        st.pyplot(fig)
+        # font_path = "NotoSansGujarati-VariableFont_wdth,wght.ttf"
+        # prop = fm.FontProperties(fname=font_path)
+        # ax.barh(most_common_df[0], most_common_df[1], color=['#8c564b'])
+        # plt.xticks(rotation='vertical')
+        # plt.yticks(fontproperties=prop)
+        # st.pyplot(fig)
+        fig = px.bar(most_common_df, x=0, y=1, color=0)
+        st.plotly_chart(fig)
 
         #emoji counter
         emoji_df = helper.emoji_helper(selected_user,df)
@@ -148,10 +162,14 @@ if uploaded_file is not None:
             st.dataframe(emoji_df)
 
         with col2:
-            from matplotlib import rcParams
-            rcParams['font.family'] = 'Segoe UI Emoji'
+            # from matplotlib import rcParams
+            # font_path = "seguiemj.ttf"   # Segoe UI Emoji
+            # prop = fm.FontProperties(fname=font_path)
 
-            fig, ax = plt.subplots()
-            st.text('Top 10 emojis')
-            ax.pie(emoji_df.head(10)['count'], labels=emoji_df.head(10)['emoji'], autopct="%0.2f")
-            st.pyplot(fig)
+            # fig, ax = plt.subplots()
+            # st.text('Top 5 emojis')
+            # ax.pie(emoji_df.head(5)['count'], labels=emoji_df.head(5)['emoji'], autopct="%0.1f%%", textprops={'fontproperties': prop})
+            # st.pyplot(fig)
+
+            fig1 = px.pie(emoji_df.head(10), values='count', names='emoji', title='Top 10 emojis')
+            st.plotly_chart(fig1)
