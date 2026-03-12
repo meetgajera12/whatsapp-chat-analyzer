@@ -4,12 +4,12 @@ import pandas as pd
 def preprocess(data):
 
     pattern = (
-    r'(?:\d{2}/\d{2}/\d{2}),\s'
-    r'(?:\d{1,2}:\d{2})[\s\u202f]?'
-    r'(?:[ap]m)\s-\s'
+    r'(?:\d{1,2}/\d{1,2}/\d{2,4}),\s'
+    r'(?:\d{1,2}:\d{2})'
+    r'(?:\s?[apAP][mM])?\s-\s'
 )
-    
-    messages = re.split(pattern,data)[1:]
+
+    messages = re.split(pattern, data)[1:]
     messages = [msg.strip() for msg in messages]
 
     dates = re.findall(pattern, data)
@@ -18,10 +18,13 @@ def preprocess(data):
     df = pd.DataFrame({'user_msg':messages, 'msg_date':dates})
 
     #convert message_date type
+    df['msg_date'] = df['msg_date'].str.replace(' -', '', regex=False)
+
     df['msg_date'] = pd.to_datetime(
-        df['msg_date'],
-        format='%d/%m/%y, %I:%M %p - '
-    )
+            df['msg_date'],
+            format='mixed',
+            dayfirst=True
+        )
     df.rename(columns={"msg_date": 'date'}, inplace=True)
 
 

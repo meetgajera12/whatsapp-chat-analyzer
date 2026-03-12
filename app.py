@@ -1,7 +1,8 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+import emoji
 import seaborn as sns
-import numpy as np
 import preprocessor, helper
 import matplotlib.pyplot as plt
 plt.rcParams['font.family'] = 'Segoe UI Emoji'
@@ -88,10 +89,12 @@ if uploaded_file is not None:
         
         st.header("Weekly Activity Map")
         user_heatmap = helper.activity_heat_map(selected_user,df)
-        fig, ax = plt.subplots()
-        ax = sns.heatmap(user_heatmap)
-        st.pyplot(fig)
-
+        if user_heatmap.size == 0:
+            st.write("No data available for heatmap")
+        else:
+            fig, ax = plt.subplots()
+            sns.heatmap(user_heatmap, ax=ax)
+            st.pyplot(fig)
 
         #finding busiest user in group (at group level)
         if selected_user == 'Overall':
@@ -115,17 +118,23 @@ if uploaded_file is not None:
         df_wc = helper.create_wordcloud(selected_user, df)
         st.title('WordCloud')
         fig, ax = plt.subplots()
+        st.text("Disclaimer: Some Gujarati or Hindi words may be not visible in this plot")
         ax.imshow(df_wc)
         st.pyplot(fig)
+        
 
         #most common words
         most_common_df = helper.most_common_words(selected_user, df)
+        st.dataframe(most_common_df)
 
         fig, ax = plt.subplots()
+        st.title("most common words")
+        st.text("Disclaimer: Some Gujarati or Hindi words may be not visible in this plot")
+        font_path = "NotoSansGujarati-VariableFont_wdth,wght.ttf"
+        prop = fm.FontProperties(fname=font_path)
         ax.barh(most_common_df[0], most_common_df[1], color=['#8c564b'])
         plt.xticks(rotation='vertical')
-
-        st.title("most common words")
+        plt.yticks(fontproperties=prop)
         st.pyplot(fig)
 
         #emoji counter
