@@ -2,6 +2,8 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 import preprocessor, helper
+import matplotlib.pyplot as plt
+plt.rcParams['font.family'] = 'Segoe UI Emoji'
 
 st.sidebar.title('Whatsapp Chat Analyzer')
 
