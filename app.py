@@ -6,6 +6,7 @@ import seaborn as sns
 import preprocessor, helper
 import matplotlib.pyplot as plt
 import plotly.express as px
+import numpy as np
 
 st.set_page_config(
     page_title="Chat Analysis",
@@ -21,6 +22,7 @@ if uploaded_file is not None:
     byte_data = uploaded_file.getvalue() 
     data = byte_data.decode('utf-8')
     df = preprocessor.preprocess(data)
+    # st.dataframe(df)
 
 
     #fetch unique users
@@ -60,22 +62,20 @@ if uploaded_file is not None:
         #monthly_timeline
         st.title("Monthly Timeline")
         timeline = helper.monthly_timeline(selected_user,df)
-        # fig, ax = plt.subplots()
-        # ax.plot(timeline['time'], timeline['messages'], color='red')
-        # plt.xticks(rotation='vertical')
-        # st.pyplot(fig)
-        figg = px.line(timeline, x='time', y='messages')
-        st.plotly_chart(figg) 
+        fig, ax = plt.subplots()
+        ax.plot(timeline['time'], timeline['messages'], color='red')
+        plt.xticks(rotation='vertical')
+        st.pyplot(fig)
+         
 
         #daily_timeline
         st.title("Daily Timeline")
         d_timeline = helper.daily_timline(selected_user, df)
-        # fig, ax = plt.subplots()
-        # ax.plot(d_timeline['only_date'], d_timeline['messages'], color='green')
-        # plt.xticks(rotation='vertical')
-        # st.pyplot(fig)
-        fig_ = px.line(d_timeline, x='only_date', y='messages')
-        st.plotly_chart(fig_)
+        fig, ax = plt.subplots()
+        ax.plot(d_timeline['only_date'], d_timeline['messages'], color='green')
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
+
 
         #activity map
         st.title("Activity Map")
@@ -85,7 +85,8 @@ if uploaded_file is not None:
             st.text("Most Busy Day")
             busy_day = helper.week_activity_map(selected_user,df)
             fig, ax = plt.subplots()
-            ax.bar(busy_day.index, busy_day.values, color = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2'])
+            bars = ax.bar(busy_day.index, busy_day.values, color = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2'])
+            ax.bar_label(bars) 
             plt.xticks(rotation='vertical')
             st.pyplot(fig)
 
@@ -93,7 +94,8 @@ if uploaded_file is not None:
             st.text("Most Busy Month")
             busy_month = helper.month_activity_map(selected_user,df)
             fig, ax = plt.subplots()
-            ax.bar(busy_month.index, busy_month.values, color = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728','#9467bd', '#8c564b', '#e377c2', '#7f7f7f','#bcbd22', '#17becf', '#aec7e8', '#ffbb78'])
+            bars = ax.bar(busy_month.index, busy_month.values, color = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728','#9467bd', '#8c564b', '#e377c2', '#7f7f7f','#bcbd22', '#17becf', '#aec7e8', '#ffbb78'])
+            ax.bar_label(bars) 
             plt.xticks(rotation='vertical')
             st.pyplot(fig)
         
@@ -106,7 +108,7 @@ if uploaded_file is not None:
             sns.heatmap(user_heatmap, ax=ax)
             st.pyplot(fig)
 
-        #finding busiest user in group (at group level)
+        # finding busiest user in group (at group level)
         if selected_user == 'Overall':
             st.title("Most Busy Users")
             x, new_df = helper.most_busy_user(df)
@@ -116,8 +118,9 @@ if uploaded_file is not None:
             col1,col2 = st.columns(2)
 
             with col1:
-                ax.bar(x.index, x.values, color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'])
-                plt.xticks(rotation='vertical')
+                bars = ax.bar(x.index, x.values, color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'])
+                ax.bar_label(bars) 
+                plt.xticks(rotation=45)
                 st.pyplot(fig)
 
             with col2:
@@ -135,21 +138,24 @@ if uploaded_file is not None:
         
 
         #most common words
-        st.title("most common words")
-        most_common_df = helper.most_common_words(selected_user, df)
-        st.dataframe(most_common_df)
+        col1,col2 = st.columns(2)
+        with col1:
+            st.title("most common words")
+            most_common_df = helper.most_common_words(selected_user, df)
+            st.dataframe(most_common_df)
 
-        fig, ax = plt.subplots()
-        st.title("most common words - Bar Plot")
-        st.text("Disclaimer: Some Gujarati or Hindi words may be not visible in this plot")
-        # font_path = "NotoSansGujarati-VariableFont_wdth,wght.ttf"
-        # prop = fm.FontProperties(fname=font_path)
-        # ax.barh(most_common_df[0], most_common_df[1], color=['#8c564b'])
-        # plt.xticks(rotation='vertical')
-        # plt.yticks(fontproperties=prop)
-        # st.pyplot(fig)
-        fig = px.bar(most_common_df, x=0, y=1, color=0)
-        st.plotly_chart(fig)
+        with col2:
+            fig, ax = plt.subplots()
+            st.header("Bar Plot")
+            st.text("Disclaimer: Some Emojies and Gujarati or Hindi words may be not visible in this plot")
+            font_path = "NotoSansGujarati-VariableFont_wdth,wght.ttf"
+            prop = fm.FontProperties(fname=font_path)
+            colors = plt.cm.tab20(np.linspace(0,1,len(most_common_df)))
+            bars = ax.barh(most_common_df[0], most_common_df[1], color=colors)
+            ax.bar_label(bars) 
+            plt.xticks(rotation='vertical')
+            plt.yticks(fontproperties=prop)
+            st.pyplot(fig)
 
         #emoji counter
         emoji_df = helper.emoji_helper(selected_user,df)
@@ -162,14 +168,17 @@ if uploaded_file is not None:
             st.dataframe(emoji_df)
 
         with col2:
-            # from matplotlib import rcParams
-            # font_path = "seguiemj.ttf"   # Segoe UI Emoji
-            # prop = fm.FontProperties(fname=font_path)
-
-            # fig, ax = plt.subplots()
-            # st.text('Top 5 emojis')
-            # ax.pie(emoji_df.head(5)['count'], labels=emoji_df.head(5)['emoji'], autopct="%0.1f%%", textprops={'fontproperties': prop})
-            # st.pyplot(fig)
-
             fig1 = px.pie(emoji_df.head(10), values='count', names='emoji', title='Top 10 emojis')
             st.plotly_chart(fig1)
+
+
+        # reply time
+        st.title('User Average Reply Time')
+        reply_time = helper.reply_time(df)
+        reply_time['reply_minutes'] = reply_time['reply_minutes']
+        fig, ax = plt.subplots()
+        colors = plt.cm.tab20(np.linspace(0,1,len(reply_time)))
+        bars = ax.barh(reply_time['user'], reply_time['reply_minutes'], color=colors)
+        ax.bar_label(bars,fmt='%.2f min')
+        ax.set_xlim(0, reply_time['reply_minutes'].max() + 5)
+        st.pyplot(fig)

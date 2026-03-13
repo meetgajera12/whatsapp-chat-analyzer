@@ -162,3 +162,20 @@ def activity_heat_map(selected_user, df):
     user_heatmap = df.pivot_table(index='day_name', columns='period', values='messages', aggfunc='count').fillna(0)
 
     return user_heatmap
+
+def reply_time(df):
+    df = df[df['user'] != 'group_notification']
+    df = df.sort_values('date') # Ensure messages are sorted by time
+    df['prev_user'] = df['user'].shift()
+    df['prev_time'] = df['date'].shift()
+
+    df['reply_time'] = (df['date'] - df['prev_time']).dt.total_seconds()
+
+    reply_df = df[df['user'] != df['prev_user']]
+    # remove replies greater than 5 hours
+    reply_df = reply_df[reply_df['reply_time'] <= 18000]
+    reply_df['reply_minutes'] = reply_df['reply_time'] / 60
+    avg_reply = reply_df.groupby('user')['reply_minutes'].mean().reset_index()
+    avg_reply = pd.DataFrame(avg_reply)
+    avg_reply = avg_reply.sort_values('reply_minutes',ascending=False)
+    return avg_reply

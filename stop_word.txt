@@ -45,8 +45,8 @@ nahi, nai,
 ha, haa,
 bahu, ghanu, ochhu,
 kare, karto, karti, karta,
-thai, thayu, thayel,-,?,!,hoy,pn,pan,toh,nay,have,koi,kidhu,me,1,2,3,4,5,6,7,8,9,0,??,jay,baki,aem,aene,.,..,...,
-jya, tya,
+thai, thayu, thayel,-,?,!,hoy,pn,pan,nay,have,me,1,2,3,4,5,6,7,8,9,0,??,jay,aem,aene,.,..,...,??,???,....,
+jya, tya,h,hh,
 bas, j, <this, edited>, message, deleted,
 છે,
 હું,
@@ -180,5 +180,6 @@ btw,
 idk,
 ikr,
 plz,
-pls
+pls,
+plzz,plss
 
