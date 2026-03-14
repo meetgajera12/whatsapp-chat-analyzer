@@ -39,6 +39,7 @@ if uploaded_file is not None:
         num_messages, words, num_media_msg, num_links = helper.fetch_stat(selected_user,df)
         
         st.title(f"TOP STATISTICS for {selected_user}")
+        st.divider()
         
         col1, col2, col3, col4 = st.columns(4)
 
@@ -58,23 +59,29 @@ if uploaded_file is not None:
             st.text("Total Links Shared")
             st.header(num_links)
 
+        st.divider()
+
 
         #monthly_timeline
         st.title("Monthly Timeline")
         timeline = helper.monthly_timeline(selected_user,df)
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(8,3))
         ax.plot(timeline['time'], timeline['messages'], color='red')
-        plt.xticks(rotation='vertical')
+        plt.xticks(rotation=45)
         st.pyplot(fig)
+
+        st.divider()
          
 
         #daily_timeline
         st.title("Daily Timeline")
         d_timeline = helper.daily_timline(selected_user, df)
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(8,4))
         ax.plot(d_timeline['only_date'], d_timeline['messages'], color='green')
         plt.xticks(rotation=45)
         st.pyplot(fig)
+
+        st.divider()
 
 
         #activity map
@@ -82,23 +89,28 @@ if uploaded_file is not None:
         col1, col2 = st.columns(2) 
 
         with col1:
-            st.text("Most Busy Day")
+            st.header("Most Busy Day")
             busy_day = helper.week_activity_map(selected_user,df)
             fig, ax = plt.subplots()
-            bars = ax.bar(busy_day.index, busy_day.values, color = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2'])
+            colors = plt.cm.tab20(np.linspace(0,1,len(busy_day)))
+            bars = ax.bar(busy_day.index, busy_day.values, color = colors)
             ax.bar_label(bars) 
             plt.xticks(rotation='vertical')
             st.pyplot(fig)
 
         with col2:
-            st.text("Most Busy Month")
+            st.header("Most Busy Month")
             busy_month = helper.month_activity_map(selected_user,df)
             fig, ax = plt.subplots()
-            bars = ax.bar(busy_month.index, busy_month.values, color = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728','#9467bd', '#8c564b', '#e377c2', '#7f7f7f','#bcbd22', '#17becf', '#aec7e8', '#ffbb78'])
+            colors = plt.cm.tab20(np.linspace(0,1,len(busy_month)))
+            bars = ax.bar(busy_month.index, busy_month.values, color =colors)
             ax.bar_label(bars) 
             plt.xticks(rotation='vertical')
             st.pyplot(fig)
+
+        st.divider()
         
+        #heatmap
         st.header("Weekly Activity Map")
         user_heatmap = helper.activity_heat_map(selected_user,df)
         if user_heatmap.size == 0:
@@ -107,6 +119,8 @@ if uploaded_file is not None:
             fig, ax = plt.subplots()
             sns.heatmap(user_heatmap, ax=ax)
             st.pyplot(fig)
+
+        st.divider()
 
         # finding busiest user in group (at group level)
         if selected_user == 'Overall':
@@ -118,13 +132,16 @@ if uploaded_file is not None:
             col1,col2 = st.columns(2)
 
             with col1:
-                bars = ax.bar(x.index, x.values, color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'])
+                colors = plt.cm.plasma(np.linspace(0,1,len(x)))
+                bars = ax.bar(x.index, x.values, color=colors)
                 ax.bar_label(bars) 
                 plt.xticks(rotation=45)
                 st.pyplot(fig)
 
             with col2:
                 st.dataframe(new_df)
+
+            st.divider()
 
         
         #wordcloud
@@ -135,27 +152,49 @@ if uploaded_file is not None:
         ax.axis("off")
         ax.imshow(df_wc)
         st.pyplot(fig)
+
+        st.divider()
         
 
         #most common words
+        st.title("most common words")
         col1,col2 = st.columns(2)
         with col1:
-            st.title("most common words")
             most_common_df = helper.most_common_words(selected_user, df)
             st.dataframe(most_common_df)
 
         with col2:
             fig, ax = plt.subplots()
-            st.header("Bar Plot")
             st.text("Disclaimer: Some Emojies and Gujarati or Hindi words may be not visible in this plot")
             font_path = "NotoSansGujarati-VariableFont_wdth,wght.ttf"
             prop = fm.FontProperties(fname=font_path)
-            colors = plt.cm.tab20(np.linspace(0,1,len(most_common_df)))
+            colors = plt.cm.viridis(np.linspace(0,1,len(most_common_df)))
             bars = ax.barh(most_common_df[0], most_common_df[1], color=colors)
             ax.bar_label(bars) 
-            plt.xticks(rotation='vertical')
             plt.yticks(fontproperties=prop)
             st.pyplot(fig)
+            
+        st.divider()
+
+
+        #count of deleted msg
+        deleted_msg = helper.count_deleted_msg(selected_user,df)
+
+        if selected_user == 'Overall':
+            st.title('Total No. of Deleted Messages')
+            fig, ax = plt.subplots(figsize=(10,8))
+            colors = plt.cm.cividis(np.linspace(0,1,len(deleted_msg)))
+            bars = ax.barh(deleted_msg['user'], deleted_msg['total_deleted_msg'], color=colors)
+            ax.bar_label(bars)
+            ax.set_xlim(0, deleted_msg['total_deleted_msg'].max() + 5)
+            st.pyplot(fig)
+        else:
+            st.title('Total Deleted Messages')
+            dm = deleted_msg['total_deleted_msg'].iloc[0]
+            st.header(f'by {selected_user}: {dm}')
+
+        st.divider()
+
 
         #emoji counter
         emoji_df = helper.emoji_helper(selected_user,df)
@@ -171,14 +210,17 @@ if uploaded_file is not None:
             fig1 = px.pie(emoji_df.head(10), values='count', names='emoji', title='Top 10 emojis')
             st.plotly_chart(fig1)
 
-
+        st.divider()
+    
         # reply time
         st.title('User Average Reply Time')
         reply_time = helper.reply_time(df)
         reply_time['reply_minutes'] = reply_time['reply_minutes']
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(10,8))
         colors = plt.cm.tab20(np.linspace(0,1,len(reply_time)))
         bars = ax.barh(reply_time['user'], reply_time['reply_minutes'], color=colors)
         ax.bar_label(bars,fmt='%.2f min')
         ax.set_xlim(0, reply_time['reply_minutes'].max() + 5)
         st.pyplot(fig)
+
+        st.divider()

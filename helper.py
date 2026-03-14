@@ -77,7 +77,7 @@ def create_wordcloud(selected_user, df):
                 y.append(word)
         return " ".join(y)
 
-    wc = WordCloud(font_path="NotoSansGujarati-VariableFont_wdth,wght.ttf", width=500, height=500,min_font_size=10)
+    wc = WordCloud(font_path="NotoSansGujarati-VariableFont_wdth,wght.ttf", width=370, height=210,min_font_size=10)
     temp['messages'] = temp['messages'].apply(remove_stop_words)
     df_wc = wc.generate(temp['messages'].astype(str).str.cat(sep=' '))
 
@@ -179,3 +179,14 @@ def reply_time(df):
     avg_reply = pd.DataFrame(avg_reply)
     avg_reply = avg_reply.sort_values('reply_minutes',ascending=False)
     return avg_reply
+
+
+def count_deleted_msg(selected_user, df):
+    if selected_user != 'Overall':
+        df = df[df['user'] == selected_user]
+
+    df = df[df['messages'].isin(['You deleted this message', 'This message was deleted'])][['user', 'messages']]
+    d = df.groupby(['user']).size().reset_index(name='total_deleted_msg')
+    del_msg = pd.DataFrame(d)
+    del_msg = del_msg.sort_values('total_deleted_msg')
+    return del_msg
