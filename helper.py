@@ -117,6 +117,20 @@ def emoji_helper(selected_user, df):
 
     return emoji_df
 
+def emoji_frequency(selected_user, df):
+    if selected_user != 'Overall':
+        df = df[df['user'] == selected_user]
+
+    total_msg_count = df.shape[0]
+    emoji_msg_count = 0
+    for msg in df['messages']:
+        for e in msg:
+            if e in emoji.EMOJI_DATA:
+                emoji_msg_count += 1
+                break
+    emoji_frequency = total_msg_count = round((total_msg_count / emoji_msg_count), 3)
+    return emoji_frequency, emoji_msg_count
+
 
 def monthly_timeline(selected_user, df):
     if selected_user != 'Overall':

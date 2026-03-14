@@ -11,7 +11,8 @@ import numpy as np
 st.set_page_config(
     page_title="Chat Analysis",
     page_icon="💬",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 st.sidebar.title('Whatsapp Chat Analyzer')
@@ -22,7 +23,6 @@ if uploaded_file is not None:
     byte_data = uploaded_file.getvalue() 
     data = byte_data.decode('utf-8')
     df = preprocessor.preprocess(data)
-    # st.dataframe(df)
 
 
     #fetch unique users
@@ -67,7 +67,7 @@ if uploaded_file is not None:
         timeline = helper.monthly_timeline(selected_user,df)
         fig, ax = plt.subplots(figsize=(8,3))
         ax.plot(timeline['time'], timeline['messages'], color='red')
-        plt.xticks(rotation=45)
+        plt.xticks(rotation=90)
         st.pyplot(fig)
 
         st.divider()
@@ -95,7 +95,7 @@ if uploaded_file is not None:
             colors = plt.cm.tab20(np.linspace(0,1,len(busy_day)))
             bars = ax.bar(busy_day.index, busy_day.values, color = colors)
             ax.bar_label(bars) 
-            plt.xticks(rotation='vertical')
+            plt.xticks(rotation=70)
             st.pyplot(fig)
 
         with col2:
@@ -105,7 +105,7 @@ if uploaded_file is not None:
             colors = plt.cm.tab20(np.linspace(0,1,len(busy_month)))
             bars = ax.bar(busy_month.index, busy_month.values, color =colors)
             ax.bar_label(bars) 
-            plt.xticks(rotation='vertical')
+            plt.xticks(rotation=70)
             st.pyplot(fig)
 
         st.divider()
@@ -182,7 +182,7 @@ if uploaded_file is not None:
 
         if selected_user == 'Overall':
             st.title('Total No. of Deleted Messages')
-            fig, ax = plt.subplots(figsize=(10,8))
+            fig, ax = plt.subplots(figsize=(8,4))
             colors = plt.cm.cividis(np.linspace(0,1,len(deleted_msg)))
             bars = ax.barh(deleted_msg['user'], deleted_msg['total_deleted_msg'], color=colors)
             ax.bar_label(bars)
@@ -199,6 +199,28 @@ if uploaded_file is not None:
         #emoji counter
         emoji_df = helper.emoji_helper(selected_user,df)
         st.title("Emoji Analysis")
+
+        if selected_user != 'Overall':
+
+            st.markdown("""
+                <style>
+                div[data-testid="stMetric"] {
+                    border: 2px solid gray;
+                    padding: 15px;
+                    border-radius: 10px;
+                }
+                </style>
+                """, unsafe_allow_html=True)
+            ef, ec = helper.emoji_frequency(selected_user, df)
+            col1, col2 = st.columns(2)
+            with col1:
+                # st.markdown('<div class="metric-box">', unsafe_allow_html=True)
+                st.metric(label=f"{selected_user}'s ***total messages*** that contain **emojis**:", value=ec)
+                # st.markdown('</div>', unsafe_allow_html=True)
+            with col2:
+                # st.markdown('<div class="metric-box">', unsafe_allow_html=True)
+                st.metric(label=f"{selected_user}'s **Emoji Usage Frequency**", value=ef)
+                # st.markdown('</div>', unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
 
