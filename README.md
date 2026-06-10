@@ -37,9 +37,6 @@ A Data Analytics web application that provides detailed insights and visualizati
 - Most Used Emojis
 - Emoji Distribution Chart
 
-### 🔗 URL Analysis
-- Extract Shared Links
-- Link Count Statistics
 
 ---
 
